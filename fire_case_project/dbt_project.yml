@@ -1,0 +1,23 @@
+name: fire_case_project
+version: '1.0'
+config-version: 2
+
+profile: fire_case_project
+
+# Carpeta base donde están tus modelos
+model-paths: ["models"]
+
+# Carpeta para los archivos de tests, docs, etc.
+test-paths: ["tests"]
+analysis-paths: ["analysis"]
+data-paths: ["data"]
+macro-paths: ["macros"]
+
+# Materialización por defecto
+models:
+  fire_case_project:
+    +materialized: table  # 👈 esto hace que todos tus modelos sean "table"
+    staging:
+      +schema: staging
+    marts:
+      +schema: marts

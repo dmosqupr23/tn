@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: tn
+    database: tn
+    schema: tn
+    tables:
+      - name: fire_incidents_desnormalized
+
+models:
+  - name: stg_fire_incidents
+    description: Tabla raw de incidentes desnormalizada
+    columns:
+      - name: id
+        description: Identificador único del incidente
+      - name: incident_date
+        description: Fecha del incidente

@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: agg_fire_by_date
+    description: Incidentes agregados por fecha
+    columns:
+      - name: incident_date
+        description: Fecha del incidente
+      - name: total_incidents
+        description: Total de incidentes en ese día
+
+  - name: agg_fire_by_battalion
+    description: Incidentes agregados por batallón
+    columns:
+      - name: battalion
+        description: Código de batallón que respondió
+      - name: total_incidents
+        description: Total de incidentes en ese batallón
+
+  - name: agg_fire_by_neighborhood
+    description: Incidentes agregados por barrio
+    columns:
+      - name: neighborhood_district
+        description: Nombre del distrito vecinal
+      - name: total_incidents
+        description: Total de incidentes registrados
+
+  - name: agg_fire_by_day_and_battalion
+    description: Incidentes agregados por día y batallón
+    columns:
+      - name: incident_date
+        description: Fecha del incidente
+      - name: battalion
+        description: Batallón involucrado

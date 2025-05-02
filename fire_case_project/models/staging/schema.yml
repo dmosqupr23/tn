@@ -9,9 +9,9 @@ sources:
 
 models:
   - name: stg_fire_incidents
-    description: Tabla raw de incidentes desnormalizada
+    description: Raw table desnormalized
     columns:
       - name: id
-        description: Identificador único del incidente
+        description: Unique identifier for the incident
       - name: incident_date
-        description: Fecha del incidente
+        description: Incident date

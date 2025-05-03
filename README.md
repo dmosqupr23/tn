@@ -165,7 +165,7 @@ dbt docs serve
 Para visualizacion se utilizó **Power Bi** como herramienta.
 
 > [!CAUTION]
-> Para efectos practicos y didacticos del challenge, solo se tomo una muestra de 10K registros, lo cual afectan algunos graficos con respecto a la visualizacion.
+> Por motivos didácticos, se utilizó una muestra de 10.000 registros, lo que puede afectar los valores agregados y la densidad visual en algunos gráficos.
 
 ![Dashboard](./img/dashboard.png)
 
@@ -173,16 +173,20 @@ Se añadieron 8 graficos + 1 filtro de fecha.
 
 Los graficos son:
 
-- **Mapa de ubicacion de los incendios**
-- **Sumatoria de lesiones de civiles**
-- **Sumatoria de lesiones por incendios**
-- **Conteo de incidentes**
-- **Filtro de fecha**
-- **Segmentacion por ciudad**
-- **Sumatoria de estimation de perdida de propiedad**
-- **Conteo de incidentes en liea de tiempo**
+| Visualización                      | Descripción                                                       |
+| ---------------------------------- | ----------------------------------------------------------------- |
+| 🗺️ **Mapa de ubicaciones**        | Visualización espacial de los puntos donde ocurrió cada incidente |
+| 🧍 **Lesiones civiles**            | Total de lesiones registradas por incidentes                      |
+| 🔥 **Lesiones por incendio**       | Cantidad de incidentes con heridos relacionados al fuego          |
+| #️⃣ **Conteo total de incidentes** | KPI con el número total de incidentes analizados                  |
+| 📅 **Filtro de fechas**            | Permite seleccionar el rango de fechas de análisis                |
+| 🏙️ **Segmentación por ciudad**    | Proporción de incidentes según ciudad registrada                  |
+| 🏚️ **Pérdidas estimadas**         | Suma de daños materiales estimados agrupados por batallón         |
+| 📈 **Incidentes por mes**          | Tendencia de ocurrencia de incidentes a lo largo del tiempo       |
+| 🏘️ **Incidentes por barrio**      | Barrios con mayor cantidad de incidentes registrados              |
+
 
 > [!NOTE]
-> En un entorno productivo, este dashboard se conectaria a la BD.
+> En un entorno productivo, este dashboard estaría conectado en tiempo real a la base de datos o Data Lake correspondiente para automatizar la actualización.
 
 Hecho por Diego Mosquera

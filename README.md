@@ -157,5 +157,32 @@ dbt docs serve
 
 ![Modelo Estrella](./img/model.png)
 
-> *El modelo representa una tabla de hechos y múltiples dimensiones, respetando las mejores prácticas de diseño analítico.*
+> [!NOTE] 
+> El modelo representa una tabla de hechos y múltiples dimensiones, respetando las mejores prácticas de diseño analítico.
 
+## Visualizacion
+
+Para visualizacion se utilizó **Power Bi** como herramienta.
+
+> [!CAUTION]
+> Para efectos practicos y didacticos del challenge, solo se tomo una muestra de 10K registros, lo cual afectan algunos graficos con respecto a la visualizacion.
+
+![Dashboard](./img/dashboard.png)
+
+Se añadieron 8 graficos + 1 filtro de fecha.
+
+Los graficos son:
+
+- **Mapa de ubicacion de los incendios**
+- **Sumatoria de lesiones de civiles**
+- **Sumatoria de lesiones por incendios**
+- **Conteo de incidentes**
+- **Filtro de fecha**
+- **Segmentacion por ciudad**
+- **Sumatoria de estimation de perdida de propiedad**
+- **Conteo de incidentes en liea de tiempo**
+
+> [!NOTE]
+> En un entorno productivo, este dashboard se conectaria a la BD.
+
+Hecho por Diego Mosquera

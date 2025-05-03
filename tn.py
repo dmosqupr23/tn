@@ -418,12 +418,13 @@ fire_data_df = normalize_colums(clean_df(fire_data_df))
 
 
 for col_name in dimensions_columns:
+    col_name = col_name.replace(' ', '_').lower()
     df_insert = split_property_column(fire_data_df.select(col_name), col_name)
     print(col_name)
     
     insert_into_mysql(
         df=df_insert,
-        table_name=col_name.replace(' ', '_').lower()+'_dimension',
+        table_name=col_name+'_dimension',
         mysql_url="jdbc:mysql://localhost:3306/tn",
         user=MYSQL_USER,
         password=MYSQL_PASS,
@@ -432,4 +433,7 @@ for col_name in dimensions_columns:
     print(f"Datos insertados en la tabla {col_name.replace(' ', '_').lower()+'_dimension'} exitosamente.")
 
 insert_into_mysql(fire_data_df, "fire_incidents_desnormalized", mysql_url="jdbc:mysql://localhost:3306/tn", user=MYSQL_USER, password=MYSQL_PASS, mode="overwrite")
-fire_data_df.show()
+#fire_data_df.show()
+
+#write file with limit 10000 in csv format
+fire_data_df.limit(10000).write.csv("tn.csv", header=True, mode="overwrite")

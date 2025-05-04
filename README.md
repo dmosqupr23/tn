@@ -16,7 +16,7 @@ This project implements a data engineering solution for the analysis of fire inc
 | **Docker**     | Container for the MySQL database                                     |
 | **Power BI**   | Used for creating the data visualization dashboard                   |
 
-> **Note:**  
+> [!IMPORTANT]  
 > In the MySQL fact table, indexes were created on `incident_date`, `neighborhood_district`, and `battalion`.  
 > MySQL does not easily allow partitioning by multiple columns, but in a production environment (e.g., Hive, Redshift, Athena, Databricks), these would be ideal partition keys.
 
@@ -87,7 +87,7 @@ The `tn.py` script:
     - `fire_incidents_desnormalized`
     - `*_dimension`
 
-> **Note:**  
+> [!IMPORTANT]  
 > The script inserts data into a MySQL DB, but ideally, this data would be loaded into a partitioned Data Lake.
 
 ---
@@ -161,7 +161,7 @@ dbt docs serve
 
 ![ERD](./img/model.png)
 
-> **Note:**  
+> [!NOTE] 
 > The model includes a fact table and multiple dimensions, following best practices in analytical data design.
 
 ---
@@ -189,7 +189,7 @@ This project implements a classic Data Warehouse architecture with zones for sta
 
 ![Dimension Example](./img/example_of_dimensions.png)
 
-> **Note:**  
+> [!NOTE] 
 > All dimension tables follow a standard format:
 > - `id`: unique normalized value
 > - `description`: clean, readable label
@@ -198,14 +198,14 @@ This project implements a classic Data Warehouse architecture with zones for sta
 
 ![Staging](./img/show_tables_tn_staging.png)
 
-> **Note:**  
+> [!NOTE] 
 > Contains the intermediate table (`stg_fire_incidents`) used as source for DBT models.
 
 ### Marts Database
 
 ![Marts](./img/show_tables_marts.png)
 
-> **Note:**  
+> [!NOTE] 
 > Contains aggregated analytical models created via DBT, each answering a different business question.
 
 ### Model Examples
@@ -214,7 +214,7 @@ This project implements a classic Data Warehouse architecture with zones for sta
 
 ![Neighborhood Aggregation](./img/example_of_agg_fire_by_neighborhood.png)
 
-> **Note:**  
+> [!NOTE] 
 > These are examples of the created models.
 
 ---
@@ -223,7 +223,7 @@ This project implements a classic Data Warehouse architecture with zones for sta
 
 Power BI was used as the visualization tool.
 
-> **Note:**  
+> [!CAUTION]
 > For educational purposes, only a 10K sample of records was used. This may affect aggregation accuracy and visual density in some charts.
 
 ![Dashboard](./img/dashboard.png)
@@ -242,7 +242,7 @@ The dashboard includes 8 charts + 1 date filter:
 | 📈 Monthly Trend               | Timeline showing incident trends over time                       |
 | 🏘️ Neighborhood Incidents     | Neighborhoods with the highest number of incidents               |
 
-> **Note:**  
+> [!NOTE]
 > In a production setup, this dashboard would connect directly to a real-time data source or Data Lake.
 
 Made by Diego Mosquera

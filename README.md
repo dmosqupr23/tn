@@ -160,6 +160,57 @@ dbt docs serve
 > [!NOTE] 
 > El modelo representa una tabla de hechos y múltiples dimensiones, respetando las mejores prácticas de diseño analítico.
 
+## Descripcion del DataWarehouse
+
+Este proyecto implementa un Data Warehouse con arquitectura clásica de zonas: staging, modelo estrella y marts analíticos. A continuación se describen las bases de datos, tablas y estructuras clave.
+
+### Bases de datos creadas
+
+- `tn`: base principal que contiene las tablas de hechos y dimensiones
+- `tn_staging`: esquema temporal para staging de datos
+- `tn_marts`: esquema final con modelos agregados creados desde DBT
+
+![show databases](./img/show_databases.png)
+
+### Tablas de hechos y dimensiones
+
+- `fire_incidents_desnormalized`: tabla de hechos
+- `*_dimension`: tablas de dimensiones creadas por cada atributo categórico
+
+![show_tables_tn](./img/show_tables_tn.png)
+
+### Ejemplo de tabla de dimensiones
+
+![example_of_dimensions](./img/example_of_dimensions.png)
+
+> [!NOTE] 
+> Todas las tablas de dimensiones tienen un formato estándar compuesto por:
+>	•	id: valor único normalizado
+>	•	description: descripción legible y limpia
+
+### Base de datos de staging
+
+![show_tables_tn_staging](./img/show_tables_tn_staging.png)
+
+> [!NOTE] 
+> Esta zona contiene la tabla intermedia (stg_fire_incidents) que sirve como fuente para los modelos DBT.
+
+### Base de datos marts
+
+![show_tables_marts](./img/show_tables_marts.png)
+
+> [!NOTE] 
+> Esta base contiene los modelos analíticos agregados generados mediante DBT. Cada uno responde a una pregunta de negocio diferente.
+
+### Ejemplo de modelos
+
+![example_of_agg_fire_by_battalion](./img/example_of_agg_fire_by_battalion.png)
+
+![example_of_agg_fire_by_neighborhood](./img/example_of_agg_fire_by_neighborhood.png)
+
+> [!NOTE] 
+> 2 ejemplos de los modelos creados.
+
 ## Visualizacion
 
 Para visualizacion se utilizó **Power Bi** como herramienta.

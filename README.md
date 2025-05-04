@@ -1,150 +1,152 @@
 
 # Fire Incidents Data Warehouse
 
-Este proyecto implementa una solución de ingeniería de datos para el análisis de incidentes de incendio en la ciudad de San Francisco.
+This project implements a data engineering solution for the analysis of fire incidents in the city of San Francisco.
 
 ---
 
-## Tecnologías utilizadas
+## Technologies Used
 
-| Herramienta | Rol |
-|-------------|-----|
-| **Python** (`tn.py`) | Limpieza, normalización y carga a MySQL |
-| **PySpark** | Framework con el que se realizan las transformaciones y acciones a los datos ingestados |
-| **MySQL** (Docker) | Motor de base de datos |
-| **DBT** | Modelado modular, documentación, tests |
-| **Docker** | Contenedor de base de datos |
-| **Power Bi** | Se crea un Dashboard para la visualizacion de los datos |
+| Tool           | Role                                                                 |
+|----------------|----------------------------------------------------------------------|
+| **Python** (`tn.py`) | Data cleaning, normalization, and loading into MySQL              |
+| **PySpark**    | Framework for performing data transformations and actions            |
+| **MySQL** (Docker) | Database engine                                                  |
+| **DBT**        | Modular modeling, documentation, and tests                           |
+| **Docker**     | Container for the MySQL database                                     |
+| **Power BI**   | Used for creating the data visualization dashboard                   |
 
-> [!IMPORTANT]  
-> En la tabla de hechos en MySQL, se crearon índices sobre `incident_date`, `neighborhood_district` y `battalion`.  
-> MySQL no permite particionar por múltiples columnas fácilmente, pero en un entorno productivo (como HIVE, Redshift, Athena, Databricks, etc.), estas serían claves ideales de partición.
+> **Note:**  
+> In the MySQL fact table, indexes were created on `incident_date`, `neighborhood_district`, and `battalion`.  
+> MySQL does not easily allow partitioning by multiple columns, but in a production environment (e.g., Hive, Redshift, Athena, Databricks), these would be ideal partition keys.
 
 ---
 
-## Objetivo del proyecto
+## Project Objective
 
-Crear un modelo de datos escalable, limpio y eficiente para analizar información de incendios, permitiendo a equipos de BI consultar de forma flexible los incidentes según:
+Create a scalable, clean, and efficient data model to analyze fire incident information, allowing BI teams to flexibly query incidents by:
 
 - `incident_date`
 - `neighborhood_district`
 - `battalion`
 
-Además, se construyó un **modelo estrella** para optimizar el rendimiento analítico y la mantenibilidad.
+A **star schema** was also built to optimize analytical performance and maintainability.
 
 ---
 
-## Arquitectura del proyecto
+## Project Architecture
 
-El proyecto se compone de:
+The project consists of:
 
-1. **Un pipeline de preparación de datos (Python - `tn.py`)**
-2. **Una base de datos en MySQL** con tablas fact y dimensiones (alojada en un contenedor de Docker)
-3. **Un proyecto DBT** que permite modelado modular, tests y documentación
-4. **Visualizacion realizada en PowerBi**
+1. **A data preparation pipeline (Python - `tn.py`)**
+2. **A MySQL database** with fact and dimension tables (hosted in a Docker container)
+3. **A DBT project** enabling modular modeling, tests, and documentation
+4. **A dashboard built in Power BI**
 
 ---
 
-## Estructura del modelo de datos
+## Data Model Structure
 
-La solución implementa un **modelo estrella**, donde:
+A **star schema** is implemented, where:
 
-- `fire_incidents_desnormalized` es la tabla de hechos
-- Hay múltiples tablas de dimensiones asociadas
+- `fire_incidents_desnormalized` is the fact table
+- There are multiple associated dimension tables
 
-### Tabla de hechos: `fire_incidents_desnormalized`
+### Fact Table: `fire_incidents_desnormalized`
 
-Contiene todas las métricas reportadas en el dataset original provisto por la ciudad de San Francisco, como pérdidas estimadas, unidades de respuesta, lesiones, entre otros.
+Contains all the metrics reported in the original dataset provided by the city of San Francisco, such as estimated losses, response units, injuries, and more.
 
-Y claves foráneas a dimensiones como:
+And foreign keys to dimensions such as:
 
 - `property_use_id`
 - `heat_source_id`
 - `primary_situation_id`
-- `battalion` 
+- `battalion`
 - `city_id`, etc.
 
-### Tablas de dimensiones
+### Dimension Tables
 
-Cada dimensión tiene una forma estándar:
+Each dimension has a standard format:
 
-| Campo       | Tipo     | Descripción                         |
-|-------------|----------|-------------------------------------|
-| id          | string   | Código o categoría del valor        |
-| description | string   | Descripción limpia y estandarizada |
+| Field       | Type     | Description                           |
+|-------------|----------|---------------------------------------|
+| id          | string   | Unique code or category value         |
+| description | string   | Cleaned and standardized description  |
 
 ---
 
 ## Pipeline
 
-### Limpieza de datos, Normalizacion, Carga en MySQL
+### Data Cleaning, Normalization, and Load into MySQL
 
-El script `tn.py`:
+The `tn.py` script:
 
-- Se normalizan y limpian todas las columnas categóricas que presentan valores inconsistentes, abreviados, duplicados o nulos, asegurando uniformidad semántica y sintáctica.
-- Cada columna categórica es procesada y transformada en una tabla dimensión
-- El script utiliza una conexión JDBC para crear e insertar en tablas:
+- Normalizes and cleans all categorical columns with inconsistent, abbreviated, duplicated, or null values, ensuring semantic and syntactic uniformity.
+- Each categorical column is processed and transformed into a dimension table.
+- The script uses a JDBC connection to create and insert into:
     - `fire_incidents_desnormalized`
     - `*_dimension`
 
-> [!IMPORTANT]  
-> En este script, se realiza la insercion de datos en la BD MySQL, pero la idea seria insertar estos datos en un Data Lake donde se pueda particionar la data.
+> **Note:**  
+> The script inserts data into a MySQL DB, but ideally, this data would be loaded into a partitioned Data Lake.
 
-## Proyecto DBT
+---
 
-El proyecto DBT (`fire_case_project`) realiza:
+## DBT Project
+
+The DBT project (`fire_case_project`) performs:
 
 ### `models/staging/`
 
-- `stg_fire_incidents.sql`: selecciona la tabla fact `fire_incidents_desnormalized`
-- `schema.yml`: define tests y documentación para columnas clave
+- `stg_fire_incidents.sql`: selects the fact table `fire_incidents_desnormalized`
+- `schema.yml`: defines tests and documentation for key columns
 
 ### `models/marts/`
 
-Modelos agregados para análisis:
+Aggregated models for analysis:
 
 - `agg_fire_by_date.sql`
 - `agg_fire_by_battalion.sql`
 - `agg_fire_by_neighborhood.sql`
 - `agg_fire_by_day_and_battalion.sql`
 
-Todos estos modelos están:
+All models are:
 
-- Materializados como `table`: Esto se debe a limitaciones del conector de DBT para MySQL, el cual no permite materializar modelos como vistas (`view`). Por esta razón, se optó por la materialización `table` aunque en entornos más avanzados lo recomendado sería `view` o `incremental`.
-- Documentados en su propio `schema.yml`
-
----
-
-## Actualización diaria
-
-El modelo está diseñado para ejecutarse diariamente, cargando nuevos datos desde la fuente. Las opciones recomendadas son:
-
-- Configuración incremental en modelos DBT
-- Esto se puede orquestar con herramientas como Apache Airflow, Prefect, DBT Cloud o mediante workflows ofrecidos por servicios cloud (ej. AWS Step Functions, GCP Cloud Composer).
+- Materialized as `table` due to limitations with the MySQL DBT adapter, which doesn't support `view` materialization.
+- Documented in their own `schema.yml`
 
 ---
 
-## Visualización
+## Daily Update
 
-Los modelos agregados (`marts`) fueron consumidos en Power BI para construir dashboards que permiten analizar tendencias de incidentes por zona, fecha y tipo de evento.
+The model is designed to run daily, loading new data from the source. Recommended options:
+
+- Configure incremental models in DBT
+- Orchestrate using tools like Apache Airflow, Prefect, DBT Cloud, or cloud services (e.g., AWS Step Functions, GCP Cloud Composer)
 
 ---
 
-## Cómo ejecutar el proyecto
+## Visualization
 
-1. **Iniciar MySQL en Docker**:
+Aggregated models (`marts`) were consumed in Power BI to build dashboards analyzing incident trends by zone, date, and event type.
+
+---
+
+## How to Run the Project
+
+1. **Start MySQL in Docker**:
 
 ```bash
-docker run --name mysql -e MYSQL_ROOT_PASSWORD=tu_pass -p 3306:3306 -d mysql
+docker run --name mysql -e MYSQL_ROOT_PASSWORD=your_pass -p 3306:3306 -d mysql
 ```
 
-2. **Ejecutar limpieza y carga**:
+2. **Run data cleaning and load**:
 
 ```bash
 python tn.py
 ```
 
-3. **Ejecutar DBT**:
+3. **Run DBT**:
 
 ```bash
 dbt run
@@ -153,91 +155,94 @@ dbt docs generate
 dbt docs serve
 ```
 
-## Modelo entidad-relación (ERD)
+---
 
-![Modelo Estrella](./img/model.png)
+## Entity-Relationship Model (ERD)
 
-> [!NOTE] 
-> El modelo representa una tabla de hechos y múltiples dimensiones, respetando las mejores prácticas de diseño analítico.
+![ERD](./img/model.png)
 
-## Descripcion del DataWarehouse
+> **Note:**  
+> The model includes a fact table and multiple dimensions, following best practices in analytical data design.
 
-Este proyecto implementa un Data Warehouse con arquitectura clásica de zonas: staging, modelo estrella y marts analíticos. A continuación se describen las bases de datos, tablas y estructuras clave.
+---
 
-### Bases de datos creadas
+## Data Warehouse Description
 
-- `tn`: base principal que contiene las tablas de hechos y dimensiones
-- `tn_staging`: esquema temporal para staging de datos
-- `tn_marts`: esquema final con modelos agregados creados desde DBT
+This project implements a classic Data Warehouse architecture with zones for staging, a star schema, and analytical marts.
 
-![show databases](./img/show_databases.png)
+### Created Databases
 
-### Tablas de hechos y dimensiones
+- `tn`: main DB with fact and dimension tables
+- `tn_staging`: staging schema
+- `tn_marts`: analytical models created via DBT
 
-- `fire_incidents_desnormalized`: tabla de hechos
-- `*_dimension`: tablas de dimensiones creadas por cada atributo categórico
+![Databases](./img/show_databases.png)
 
-![show_tables_tn](./img/show_tables_tn.png)
+### Fact and Dimension Tables
 
-### Ejemplo de tabla de dimensiones
+- `fire_incidents_desnormalized`: fact table
+- `*_dimension`: dimension tables per categorical attribute
 
-![example_of_dimensions](./img/example_of_dimensions.png)
+![Tables](./img/show_tables_tn.png)
 
-> [!NOTE] 
-> Todas las tablas de dimensiones tienen un formato estándar compuesto por:
->	•	id: valor único normalizado
->	•	description: descripción legible y limpia
+### Example of a Dimension Table
 
-### Base de datos de staging
+![Dimension Example](./img/example_of_dimensions.png)
 
-![show_tables_tn_staging](./img/show_tables_tn_staging.png)
+> **Note:**  
+> All dimension tables follow a standard format:
+> - `id`: unique normalized value
+> - `description`: clean, readable label
 
-> [!NOTE] 
-> Esta zona contiene la tabla intermedia (stg_fire_incidents) que sirve como fuente para los modelos DBT.
+### Staging Database
 
-### Base de datos marts
+![Staging](./img/show_tables_tn_staging.png)
 
-![show_tables_marts](./img/show_tables_marts.png)
+> **Note:**  
+> Contains the intermediate table (`stg_fire_incidents`) used as source for DBT models.
 
-> [!NOTE] 
-> Esta base contiene los modelos analíticos agregados generados mediante DBT. Cada uno responde a una pregunta de negocio diferente.
+### Marts Database
 
-### Ejemplo de modelos
+![Marts](./img/show_tables_marts.png)
 
-![example_of_agg_fire_by_battalion](./img/example_of_agg_fire_by_battalion.png)
+> **Note:**  
+> Contains aggregated analytical models created via DBT, each answering a different business question.
 
-![example_of_agg_fire_by_neighborhood](./img/example_of_agg_fire_by_neighborhood.png)
+### Model Examples
 
-> [!NOTE] 
-> 2 ejemplos de los modelos creados.
+![Battalion Aggregation](./img/example_of_agg_fire_by_battalion.png)
 
-## Visualizacion
+![Neighborhood Aggregation](./img/example_of_agg_fire_by_neighborhood.png)
 
-Para visualizacion se utilizó **Power Bi** como herramienta.
+> **Note:**  
+> These are examples of the created models.
 
-> [!CAUTION]
-> Por motivos didácticos, se utilizó una muestra de 10.000 registros, lo que puede afectar los valores agregados y la densidad visual en algunos gráficos.
+---
+
+## Dashboard
+
+Power BI was used as the visualization tool.
+
+> **Note:**  
+> For educational purposes, only a 10K sample of records was used. This may affect aggregation accuracy and visual density in some charts.
 
 ![Dashboard](./img/dashboard.png)
 
-Se añadieron 8 graficos + 1 filtro de fecha.
+The dashboard includes 8 charts + 1 date filter:
 
-Los graficos son:
+| Visualization                  | Description                                                       |
+|--------------------------------|-------------------------------------------------------------------|
+| 🗺️ Map                         | Spatial view of fire incident locations                          |
+| 🧍 Civilian Injuries           | Total civilian injuries across incidents                         |
+| 🔥 Fire-related Injuries       | Number of incidents involving injuries due to fire               |
+| #️⃣ Total Incidents            | KPI showing total incident count                                 |
+| 📅 Date Filter                 | Allows analysis over a selected time range                       |
+| 🏙️ City Breakdown             | Proportion of incidents by registered city                       |
+| 🏚️ Estimated Property Loss    | Sum of estimated property damage, grouped by battalion           |
+| 📈 Monthly Trend               | Timeline showing incident trends over time                       |
+| 🏘️ Neighborhood Incidents     | Neighborhoods with the highest number of incidents               |
 
-| Visualización                      | Descripción                                                       |
-| ---------------------------------- | ----------------------------------------------------------------- |
-| 🗺️ **Mapa de ubicaciones**        | Visualización espacial de los puntos donde ocurrió cada incidente |
-| 🧍 **Lesiones civiles**            | Total de lesiones registradas por incidentes                      |
-| 🔥 **Lesiones por incendio**       | Cantidad de incidentes con heridos relacionados al fuego          |
-| #️⃣ **Conteo total de incidentes** | KPI con el número total de incidentes analizados                  |
-| 📅 **Filtro de fechas**            | Permite seleccionar el rango de fechas de análisis                |
-| 🏙️ **Segmentación por ciudad**    | Proporción de incidentes según ciudad registrada                  |
-| 🏚️ **Pérdidas estimadas**         | Suma de daños materiales estimados agrupados por batallón         |
-| 📈 **Incidentes por mes**          | Tendencia de ocurrencia de incidentes a lo largo del tiempo       |
-| 🏘️ **Incidentes por barrio**      | Barrios con mayor cantidad de incidentes registrados              |
+> **Note:**  
+> In a production setup, this dashboard would connect directly to a real-time data source or Data Lake.
 
-
-> [!NOTE]
-> En un entorno productivo, este dashboard estaría conectado en tiempo real a la base de datos o Data Lake correspondiente para automatizar la actualización.
-
-Hecho por Diego Mosquera
+Made by Diego Mosquera
